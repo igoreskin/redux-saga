@@ -7,3 +7,7 @@ export const getUsers = () => {
     }
   })
 }
+
+export const createUser = (form) => {
+  return axios.post('/users', form)
+}
