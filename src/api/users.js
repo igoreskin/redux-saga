@@ -11,3 +11,7 @@ export const getUsers = () => {
 export const createUser = (form) => {
   return axios.post('/users', form)
 }
+
+export const deleteUser = (userId) => {
+  return axios.delete(`/users/${userId}`);
+}

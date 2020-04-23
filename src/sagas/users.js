@@ -1,4 +1,4 @@
-import { takeEvery, takeLatest, call, fork, put } from 'redux-saga/effects';
+import { takeEvery, takeLatest, take, call, fork, put } from 'redux-saga/effects';
 import * as actions from '../actions/users';
 import * as api from '../api/users';
 
@@ -22,7 +22,7 @@ function* watchGetUsersRequest() {
 function* createUser(action) {
   console.log(action);
   try {
-    yield call(api.createUser, action.payload);
+    yield call(api.createUser, action.payload); // arguments to api.createUser are passed as a second argument to this yield call 
     yield call(getUsers);
   } catch (error) {
     
@@ -33,11 +33,30 @@ function* watchCreateUserRequest() {
   yield takeLatest(actions.Types.CREATE_USER_REQUEST, createUser);
 }
 
+// DELETE USER SAGAS 
+
+function* deleteUser({userId}) {
+  try {
+    yield call(api.deleteUser, userId);
+    yield call(getUsers);
+  } catch (error) {
+    
+  }
+}
+
+function* watchDeleteUserRequest() {
+  while(true) { // the loop can't be re-entered and watch new delete user requests until all yields have been resolved 
+    const action = yield take(actions.Types.DELETE_USER_REQUEST); // the worker saga can't be passed as an argument to a lower lever effect like 'take'
+    yield call(deleteUser, { userId: action.payload.userId });
+  }
+}
+
 //-------------------------------//
 
 const usersSagas = [
   fork(watchGetUsersRequest),
-  fork(watchCreateUserRequest)
+  fork(watchCreateUserRequest),
+  fork(watchDeleteUserRequest)
 ];
 
 export default usersSagas;
